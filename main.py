@@ -66,7 +66,7 @@ def get_info_about_contactor(url_contactor, name):
                     price_3 = tab.find_all('td')[4].text
                     date = tab.find_all('td')[5].text
                     all_data.append([name, addres, vid_rabot, price_1, price_2, price_3, date])
-            time.sleep(5)
+            time.sleep(1)
         except:
             pass
         print(f'Обработана страница - {page}')
@@ -76,7 +76,7 @@ def get_info_about_contactor(url_contactor, name):
 
 with open('all_data.csv', 'r', encoding='utf-8') as file:
     reader = csv.reader(file, delimiter=',')
-    for one_row in tqdm(list(reader)[196:]):
+    for one_row in tqdm(list(reader)[197:]):
         if int(one_row[-1]) > 0:
             get_info_about_contactor(url_contactor=one_row[0], name=one_row[1])
         print(f'Обработан {one_row[1]}')
