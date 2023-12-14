@@ -3,8 +3,8 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 url = "https://lk.rosreestr.ru/account-back/on"
-
-payload = "{\"filterType\":\"cadastral\",\"cadNumbers\":[\"26:12:022608:36\"]}"
+num = "26:12:022704:346"
+payload = f"""{{"filterType": "cadastral", "cadNumbers": ["{num}"]}}"""
 headers = {
   'Accept': 'application/json, text/plain, */*',
   'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
