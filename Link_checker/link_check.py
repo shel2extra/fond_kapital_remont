@@ -1,6 +1,11 @@
+import csv
+import random
+
+from tqdm import tqdm
 import requests
 from bs4 import BeautifulSoup as bs
 from fake_headers import Headers
+headres = Headers(os='Windows', browser='chrome')
 
 
 def link_checker(num_url):
@@ -13,11 +18,23 @@ def link_checker(num_url):
         'a')['href']
     except:
         protokol_link = 'Отсутсвует'
-    print(protokol_link)
+    return "https://zakupki.gov.ru" + protokol_link
+
+def link_protokol_checker(url, num):
+    respone = requests.get(url=url, headers=headres.generate())
+    soup = bs(respone.content, 'html.parser')
+    try:
+        count_request = soup.find('span', text='Количество поданных заявок').find_next()
+        print(num, count_request.text)
+    except:
+        pass
 
 
-headres = Headers(os='Windows', browser='chrome')
-with open('links.txt', 'r') as file:
-    links = [x.replace('\n', '').replace('в„–', '').strip() for x in file.readlines()]
-    for link in links[:10]:
-        link_checker(link)
+list_links = []
+with open('result_links.csv', 'r', encoding='utf-8') as csv_file:
+    links = [x for x in csv_file.readlines() if "Отсутсвует" not in x]
+    # for link in links[:10]:
+    #     link_protokol_checker(link.split(',')[-1])
+    for i in range(30):
+        ran = random.choice(links)
+        link_protokol_checker(ran.split(',')[-1], ran.split(',')[0])
