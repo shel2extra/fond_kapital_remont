@@ -6,12 +6,14 @@ from tqdm.auto import tqdm
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-
+#TODO: "Сделать блятский асинхрон с прокси"
 async def check_by_rosreestr(num, session, pbar):
     url = "https://lk.rosreestr.ru/account-back/on"
     payload = f"""{{"filterType": "cadastral", "cadNumbers": ["{num}"]}}"""
     async with session.post(url=url, data=payload) as response:
-        print(num, response)
+        square = await response.json()
+
+        print(square)
 
 
 
@@ -33,8 +35,8 @@ async def process_batch(nums, session):
     tasks = []
     for num in nums:
         num = num.replace(':', '-')
-        task = asyncio.create_task(check_by_rosreestr(num, session, pbar))
-        # task = asyncio.create_task(check_square(num, session, pbar))
+        # task = asyncio.create_task(check_by_rosreestr(num, session, pbar))
+        task = asyncio.create_task(check_square(num, session, pbar))
         tasks.append(task)
     await asyncio.gather(*tasks)
     return
@@ -43,14 +45,13 @@ async def process_batch(nums, session):
 async def main():
     time_start = time.time()
     list_kadastr = []
-    with open(r'C:\Users\User\Desktop\РАБОТА АПСК\2023\13. Фонд капитального ремонта\kadasrt_map.csv', 'r',
-              encoding='utf-8', newline='') as csv_file:
+    with open('kadasrt_map.csv', 'r', encoding='utf-8', newline='') as csv_file:
         reader = csv.reader(csv_file, delimiter='|')
         next(reader)
         for row in reader:
             list_kadastr.append(row[1])
     tasks = []
-    my_conn = aiohttp.TCPConnector(limit=25, verify_ssl=False)
+    my_conn = aiohttp.TCPConnector(limit=3, ssl=False)
     headers_2 = {
         'Accept': 'application/json, text/plain, */*',
         'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
@@ -72,7 +73,7 @@ async def main():
     }
     async with aiohttp.ClientSession(connector=my_conn) as session:
         session.headers.update(headers_2)
-        batch_size = 10  # Установите размер пакета подходящим образом
+        batch_size = 1000  # Установите размер пакета подходящим образом
         for i in tqdm(range(0, len(list_kadastr), batch_size), position=0, desc='ALL', ncols=80, leave=False):
             batch = list_kadastr[i:i + batch_size]
             await process_batch(batch, session)

@@ -1,8 +1,11 @@
+import json
 import requests
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+import aiohttp
+import asyncio
 
-url = "https://lk.rosreestr.ru/account-back/on"
+# url = "https://lk.rosreestr.ru/account-back/on"
 num = "26:12:022704:346"
 payload = f"""{{"filterType": "cadastral", "cadNumbers": ["{num}"]}}"""
 headers = {
@@ -24,7 +27,25 @@ headers = {
   'sec-ch-ua-mobile': '?0',
   'sec-ch-ua-platform': '"Windows"'
 }
+# def check_us():
+  # response = requests.request("POST", url, headers=headers, data=payload, verify=False)
+  # return response
 
-response = requests.request("POST", url, headers=headers, data=payload, verify=False).json()
+async def check():
+  my_con = aiohttp.TCPConnector(limit=25, ssl=False)
+  async with aiohttp.ClientSession(connector=my_con) as session:
+    session.headers.update(headers)
+    urls = 'https://jsonip.com/'
+    proxys = "http://88.201.217.203:80"
+    async with session.post(url=urls, proxy=proxys) as response_2:
+      ip = await response_2.json()
+      print(ip['ip'])
+      # square = await response_2.json()
+      # print(square['elements'][0]['area'])
 
-print(response['elements'][0]['area'])
+if __name__ == '__main__':
+  loop = asyncio.get_event_loop()
+  loop.run_until_complete(check())
+
+  # print(check_us())
+# print(response['elements'][0]['area'])
